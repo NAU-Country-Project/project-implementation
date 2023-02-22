@@ -1,7 +1,10 @@
 using NAUCountryA.Models;
+using Npgsql;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Data;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -129,8 +132,8 @@ namespace NAUCountryA.Tables
                         string line = lines.Current;
                         string[] values = line.Split(",");
                         int offerID = (int)Service.ExpressValue(values[0]);
-                        double expectedIndexValue = (double)Service.ExpressValue(values[1]); 
-                        if(!ContainsKey(offerID))
+                        double expectedIndexValue = (double)Service.ExpressValue(values[1]);
+                        if (!ContainsKey(offerID))
                         {
                             string sqlCommand = "INSERT INTO public.\"Price\" (" +
                                 headers[0] + "," + headers[1] ") VALUES" +
@@ -165,16 +168,16 @@ namespace NAUCountryA.Tables
                 }
             }
             int position = 0;
-            while(position < Count)
+            while (position < Count)
             {
                 Price price = new Price(Table.Rows[position]);
                 string lineFromTable = "\"" + price.OfferID + "\"";
-                if(price.OfferID < 10)
+                if (price.OfferID < 10)
                 {
                     lineFromTable += "0";
                 }
                 lineFromTable += price.ExpectedIndexValue "\"";
-                if(!contents.Contains(lineFromTable))
+                if (!contents.Contains(lineFromTable))
                 {
                     string sqlCommand = "DELETE FROM public.\"Price\" WHERE \"EXPECTED_INDEX_VALUE\" = '" +
                         price.ExpectedIndexValue + "\"";
@@ -188,4 +191,5 @@ namespace NAUCountryA.Tables
 
 
         }
+    }
 }

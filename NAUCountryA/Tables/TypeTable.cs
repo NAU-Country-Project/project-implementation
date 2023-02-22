@@ -1,12 +1,16 @@
 using NAUCountryA.Models;
+using Npgsql;
 using System;
 using System.Collections.Generic;
+using System.Data;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
+using NauType = NAUCountryA.Models.NauType;
 
 namespace NAUCountryA.Tables
 {
-    public class TypeTable : IReadOnlyDictionary<string, Type>
+    public class TypeTable : IReadOnlyDictionary<int, NauType>
     {
         public TypeTable()
         {
@@ -23,27 +27,28 @@ namespace NAUCountryA.Tables
             }
         }
 
-        public Type this[string typeCode]
+        public NauType this[string typeCode]
         {
             get
             {
-                string sqlCommand = "SELECT * FROM public.\"Type\" WHERE \"TYPE_CODE\" = '"
-                    + typeCode + "';";
+                // Design Note: Using $ at the start of the string and injecting C# variables with {} can help make string concat/formats more readable.
+                string sqlCommand = $"SELECT * FROM public.\"Type\" WHERE \"TYPE_CODE\" = '{typeCode}';";
                 DataTable table = Service.GetDataTable(sqlCommand);
                 if (table.Rows.Count == 0)
                 {
-                    throw new KeyNotFoundException("The TYPE_CODE: " + stateCode + " doesn't exist.");
+                    throw new KeyNotFoundException($"The TYPE_CODE: {typeCode} doesn't exist.");
                 }
-                return new Type(table.Rows[0]);
+                return new NauType(table.Rows[0]);
 
             }
+        }
 
         public IEnumerable<string> Keys
         {
             get
             {
                 ICollection<string> keys = new HashSet<string>();
-                foreach (KeyValuePair<string, Type> pair in this)
+                foreach (KeyValuePair<string, NauType> pair in this)
                 {
                     keys.Add(pair.Key);
                 }
@@ -51,12 +56,12 @@ namespace NAUCountryA.Tables
             }
         }
 
-        public IEnumerable<Type> Values
+        public IEnumerable<NauType> Values
         {
             get
             {
-                ICollection<Type> values = new List<Type>();
-                foreach (KeyValuePair<string, Type> pair in this)
+                ICollection<NauType> values = new List<NauType>();
+                foreach (KeyValuePair<string, NauType> pair in this)
                 {
                     values.Add(pair.Value);
                 }
@@ -66,19 +71,21 @@ namespace NAUCountryA.Tables
 
         public bool ContainsKey(int typeCode)
         {
-            string sqlCommand = "SELECT * FROM public.\"Type\" WHERE \"TYPE_CODE\" = '"
-                + TypeCode + "';";
-            DataTable table = Service.GetDataTable(sqlCommand);
+			string sqlCommand = $"SELECT * FROM public.\"Type\" WHERE \"TYPE_CODE\" = '{typeCode}';";
+
+			//string sqlCommand = "SELECT * FROM public.\"Type\" WHERE \"TYPE_CODE\" = '"
+			//             + typeCode + "';";
+			DataTable table = Service.GetDataTable(sqlCommand);
             return table.Rows.Count >= 1;
         }
 
-        public IEnumerator<KeyValuePair<string, Type>> GetEnumerator()
+        public IEnumerator<KeyValuePair<string, NauType>> GetEnumerator()
         {
-            ICollection<KeyValuePair<string, Type>> pairs = new HashSet<KeyValuePair<string, Type>>();
+            ICollection<KeyValuePair<string, NauType>> pairs = new HashSet<KeyValuePair<string, NauType>>();
             DataTable table = Table;
             foreach (DataRow row in table.Rows)
             {
-                Type type = new Type(row);
+                NauType type = new NauType(row);
                 pairs.Add(type.Pair);
             }
             return pairs.GetEnumerator();
@@ -89,7 +96,7 @@ namespace NAUCountryA.Tables
             return GetEnumerator();
         }
 
-        public bool TryGetValue(int typeCode, [MaybeNullWhen(false)] out Type value)
+        public bool TryGetValue(int typeCode, [MaybeNullWhen(false)] out NauType value)
         {
             value = null;
             return ContainsKey(typeCode);
@@ -114,7 +121,11 @@ namespace NAUCountryA.Tables
             }
         }
 
-        private void AddEntries()
+		IEnumerable<int> IReadOnlyDictionary<int, Models.NauType>.Keys => throw new NotImplementedException();
+
+		public Models.NauType this[int key] => throw new NotImplementedException();
+
+		private void AddEntries()
         {
             ICollection<ICollection<string>> csvContents = CsvContents;
             foreach (ICollection<string> contents in csvContents)
@@ -171,7 +182,7 @@ namespace NAUCountryA.Tables
             int position = 0;
             while (position < Count)
             {
-                Type type = new Models.Type(Table.Rows[position]);
+                NauType type = new Models.NauType(Table.Rows[position]);
                 string lineFromTable = "\"" + type.TypeCode + "\"";
                 if(type.TypeName < 10)
                 {
@@ -194,5 +205,14 @@ namespace NAUCountryA.Tables
 
         }
 
-    }
+		IEnumerator<KeyValuePair<int, Models.NauType>> IEnumerable<KeyValuePair<int, Models.NauType>>.GetEnumerator()
+		{
+			throw new NotImplementedException();
+		}
+
+		System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
+		{
+			throw new NotImplementedException();
+		}
+	}
 }
