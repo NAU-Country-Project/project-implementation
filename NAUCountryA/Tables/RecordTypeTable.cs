@@ -27,12 +27,11 @@ namespace NAUCountryA.Tables
         {
             get
             {
-                string sqlCommand = "SELECT * FROM public.\"RecordType\" WHERE \"RECORD_TYPE_CODE\" = '" 
-                + recordTypeCode + "';";
+                string sqlCommand = $"SELECT * FROM public.\"RecordType\" WHERE \"RECORD_TYPE_CODE\" = '{recordTypeCode}';";
                 DataTable table = Service.GetDataTable(sqlCommand);
                 if (table.Rows.Count == 0)
                 {
-                    throw new KeyNotFoundException($"The RECORD_TYPE_CODE: '{recordTypeCode}' doesn't exist.");
+                    throw new KeyNotFoundException($"The RECORD_TYPE_CODE: {recordTypeCode} doesn't exist.");
                 }
                 return new RecordType(table.Rows[0]);
             }
@@ -66,8 +65,7 @@ namespace NAUCountryA.Tables
 
         public bool ContainsKey(string recordTypeCode)
         {
-            string sqlCommand = "SELECT * FROM public.\"RecordType\" WHERE \"RECORD_TYPE_CODE\" = '" 
-                + recordTypeCode + "';";
+            string sqlCommand = $"SELECT * FROM public.\"RecordType\" WHERE \"RECORD_TYPE_CODE\" = '{recordTypeCode}';";
             DataTable table = Service.GetDataTable(sqlCommand);
             return table.Rows.Count >= 1;
         }
@@ -137,8 +135,8 @@ namespace NAUCountryA.Tables
                         int reinsuranceYear = (int)Service.ExpressValue(values[2]);
                         if (!ContainsKey(recordTypeCode))
                         {
-                            string sqlCommand = $"INSERT INTO public.\"RecordType\" ('{headers[0]}','{headers[1]}'," + 
-                                $"'{headers[2]}') VALUES (''{recordTypeCode}'','{recordCategoryCode}'," +
+                            string sqlCommand = $"INSERT INTO public.\"RecordType\" ({headers[0]},{headers[1]}," + 
+                                $"{headers[2]}) VALUES ('{recordTypeCode}',{recordCategoryCode}," +
                                 reinsuranceYear + ");";
                             Service.GetDataTable(sqlCommand);
                         }

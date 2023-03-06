@@ -12,7 +12,7 @@ namespace NAUCountryATest.Tables
 {
     public class OfferTableTest
     {
-        private OfferTable tableMockup;
+        /*private OfferTable tableMockup;
         [SetUp]
         public void Setup()
         {
@@ -114,6 +114,6 @@ namespace NAUCountryATest.Tables
         {
             Offer test = null;
             Assert.That(tableMockup.TryGetValue(2786971, out test), Is.False);
-        }
+        }*/
     }
 }

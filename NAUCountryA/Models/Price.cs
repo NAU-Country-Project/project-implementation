@@ -7,8 +7,7 @@ namespace NAUCountryA.Models
     {
         public Price(int offerID, double expectedIndexValue)
         {
-            IReadOnlyDictionary<int,Offer> offerEntries = new OfferTable();
-            Offer = offerEntries[offerID];
+            Offer = Service.OfferEntries[offerID];
             ExpectedIndexValue = expectedIndexValue;
         }
         
@@ -58,7 +57,7 @@ namespace NAUCountryA.Models
 
         public override string ToString()
         {
-            return $"'{Offer.FormatOfferID()}',\"'{Service.ToString(ExpectedIndexValue)}'\"";
+            return $"{Offer.FormatOfferID()},\"{Service.ToString(ExpectedIndexValue)}\"";
         }
 
         public static bool operator ==(Price a, Price b)

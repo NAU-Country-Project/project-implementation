@@ -30,11 +30,11 @@ namespace NAUCountryA.Tables
         {
             get
             {
-                string sqlCommand = $"SELECT * FROM public.\"Price\" WHERE \"OFFER_ID\" = '{offer.OfferID}';";
+                string sqlCommand = $"SELECT * FROM public.\"Price\" WHERE \"OFFER_ID\" = {offer.OfferID};";
                 DataTable table = Service.GetDataTable(sqlCommand);
                 if (table.Rows.Count == 0)
                 {
-                    throw new KeyNotFoundException($"The OFFER_ID: '{offer.OfferID}' doesn't exist.");
+                    throw new KeyNotFoundException($"The OFFER_ID: {offer.OfferID} doesn't exist.");
                 }
                 return new Price(table.Rows[0]);
             }
@@ -68,7 +68,7 @@ namespace NAUCountryA.Tables
 
         public bool ContainsKey(Offer offer)
         {
-            string sqlCommand = $"SELECT * FROM public.\"Price\" WHERE \"OFFER_ID\" = '{offer.OfferID}';";
+            string sqlCommand = $"SELECT * FROM public.\"Price\" WHERE \"OFFER_ID\" = {offer.OfferID};";
             DataTable table = Service.GetDataTable(sqlCommand);
             return table.Rows.Count >= 1;
         }
@@ -133,8 +133,8 @@ namespace NAUCountryA.Tables
                         IReadOnlyDictionary<int,Offer> offerEntries = new OfferTable();
                         if(!ContainsKey(offerEntries[offerID]))
                         {
-                            string sqlCommand = $"INSERT INTO public.\"Price\" ('{headers[0]}','{headers[1]}') VALUES " +
-                                $"('{offerID}','{expectedIndexValue});";
+                            string sqlCommand = $"INSERT INTO public.\"Price\" ({headers[0]},{headers[1]}) VALUES " +
+                                $"({offerID},{expectedIndexValue});";
                             Service.GetDataTable(sqlCommand);
 
                         }

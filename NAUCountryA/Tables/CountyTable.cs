@@ -28,24 +28,14 @@ namespace NAUCountryA.Tables
         {
             get
             {
-                string sqlCommand = $"SELECT * FROM public.\"County\" WHERE \"COUNTY_CODE\"='{countyCode}';";
+                string sqlCommand = $"SELECT * FROM public.\"County\" WHERE \"COUNTY_CODE\"={countyCode};";
                 DataTable table = Service.GetDataTable(sqlCommand);
                 if (table.Rows.Count == 0)
                 {
-                    throw new KeyNotFoundException($"The COUNTY_CODE: '{countyCode}' doesn't exist.");
+                    throw new KeyNotFoundException($"The COUNTY_CODE: {countyCode} doesn't exist.");
                 }
                 return new County(table.Rows[0]);
             }
-        }
-        public DataTable getStateCounties(int stateCode)
-        {
-            string sqlCommand = $"SELECT * FROM public.\"County\" WHERE \"STATE_CODE\"='{stateCode}';";
-            DataTable table = Service.GetDataTable(sqlCommand);
-            if (table.Rows.Count == 0)
-            {
-                throw new KeyNotFoundException($"The STATE_CODE: '{stateCode}' doesn't exist.");
-            }
-            return table;
         }
         public IEnumerable<int> Keys
         {
@@ -75,7 +65,7 @@ namespace NAUCountryA.Tables
 
         public bool ContainsKey(int countyCode)
         {
-            string sqlCommand = $"SELECT * FROM public.\"County\" WHERE \"COUNTY_CODE\"='{countyCode}';";
+            string sqlCommand = $"SELECT * FROM public.\"County\" WHERE \"COUNTY_CODE\"={countyCode};";
             DataTable table = Service.GetDataTable(sqlCommand);
             return table.Rows.Count >= 1;
         }
@@ -136,9 +126,9 @@ namespace NAUCountryA.Tables
                     string recordTypeCode = (string)Service.ExpressValue(values[0]);
                     if (!ContainsKey(countyCode))
                     {
-                        string sqlCommand = $"INSERT INTO public.\"County\" ('{headers[4]}','{headers[3]}'" +
-                            $",'{headers[5]}','{headers[0]}') VALUES ('{countyCode}','{stateCode}'," +
-                            $"''{countyName}'',''{recordTypeCode}'');";
+                        string sqlCommand = $"INSERT INTO public.\"County\" ({headers[4]},{headers[3]}" +
+                            $",{headers[5]},{headers[0]}) VALUES ({countyCode},{stateCode}," +
+                            $"'{countyName}','{recordTypeCode}');";
                         Service.GetDataTable(sqlCommand);
                     }
                 }
@@ -160,7 +150,7 @@ namespace NAUCountryA.Tables
             foreach (string line in CsvContents)
             {
                 string[] values = line.Split(',');
-                contents.Add($"'{values[4]}','{values[3]}','{values[5]}','{values[0]}'");
+                contents.Add($"{values[4]},{values[3]},{values[5]},{values[0]}");
             }
             int position = 0;
             while (position < Count)
@@ -168,8 +158,8 @@ namespace NAUCountryA.Tables
                 County county = new County(Table.Rows[position]);
                 if (!contents.Contains(county.ToString()))
                 {
-                    string sqlCommand = "DELETE FROM public.\"County\" WHERE \"COUNTY_CODE\" = '" +
-                        county.CountyCode + "';";
+                    string sqlCommand = "DELETE FROM public.\"County\" WHERE \"COUNTY_CODE\" = " +
+                        county.CountyCode + ";";
                     Service.GetDataTable(sqlCommand);
                 }
                 else

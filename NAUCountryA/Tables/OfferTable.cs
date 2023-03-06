@@ -27,27 +27,14 @@ namespace NAUCountryA.Tables
         {
             get
             {
-                string sqlCommand = "SELECT * FROM public.\"Offer\" WHERE \"ADM_INSURANCE_OFFER_ID\" = '"
-                + offerID + "';";
+                string sqlCommand = $"SELECT * FROM public.\"Offer\" WHERE \"ADM_INSURANCE_OFFER_ID\" = {offerID};";
                 DataTable table = Service.GetDataTable(sqlCommand);
                 if (table.Rows.Count == 0)
                 {
-                    throw new KeyNotFoundException("The ADM_INSURANCE_OFFER_ID: " + offerID + " doesn't exist.");
+                    throw new KeyNotFoundException($"The ADM_INSURANCE_OFFER_ID: {offerID} doesn't exist.");
                 }
                 return new Offer(table.Rows[0]);
             }
-        }
-
-        public DataTable getOffersByState(int stateCode)
-        {
-            string sqlCommand = "SELECT * FROM public.\"Offer\" WHERE \"STATE_CODE\" = '"
-                + stateCode + "';";
-            DataTable table = Service.GetDataTable(sqlCommand);
-            if (table.Rows.Count == 0)
-            {
-                throw new KeyNotFoundException("The STATE_CODE: " + stateCode + " doesn't exist.");
-            }
-            return table;
         }
 
         public IEnumerable<int> Keys
@@ -78,8 +65,7 @@ namespace NAUCountryA.Tables
 
         public bool ContainsKey(int offerID)
         {
-            string sqlCommand = "SELECT * FROM public.\"Offer\" WHERE \"ADM_INSURANCE_OFFER_ID\" = '"
-                + offerID + "';";
+            string sqlCommand = $"SELECT * FROM public.\"Offer\" WHERE \"ADM_INSURANCE_OFFER_ID\" = {offerID};";
             DataTable table = Service.GetDataTable(sqlCommand);
             return table.Rows.Count >= 1;
         }
@@ -148,10 +134,10 @@ namespace NAUCountryA.Tables
                         int irrigationPracticeCode = (int)Service.ExpressValue(values[5]);
                         if (!ContainsKey(offerID))
                         {
-                            string sqlCommand = $"INSERT INTO public.\"Offer\" ('{headers[0]}','{headers[1]},'" +
-                            $"'{headers[4]}','{headers[2]}','{headers[3]}','{headers[5]}',\"YEAR\") VALUES ('" +
-                            $"'{offerID}','{stateCode}','{practiceCode}','{countyCode}','{typeCode}," +
-                            $"'{irrigationPracticeCode}','{pair.Key}');";
+                            string sqlCommand = $"INSERT INTO public.\"Offer\" ({headers[0]},{headers[1]}," +
+                            $"{headers[4]},{headers[2]},{headers[3]},{headers[5]},\"YEAR\") VALUES (" +
+                            $"{offerID},{stateCode},{practiceCode},{countyCode},{typeCode}," +
+                            $"{irrigationPracticeCode},{pair.Key});";
                             Service.GetDataTable(sqlCommand);
                         }
                     }

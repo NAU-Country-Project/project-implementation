@@ -5,8 +5,6 @@ using NAUCountryA.Tables;
 using Npgsql;
 using System.Data;
 using System.Data.Common;
-using System;
-using System.IO;
 using ceTe.DynamicPDF;
 using ceTe.DynamicPDF.PageElements;
 using System.Text.RegularExpressions;
@@ -15,6 +13,17 @@ namespace NAUCountryA
 {
     public class Service
     {
+        public static IReadOnlyDictionary<int, Commodity> CommodityEntries
+        {
+            get;
+            private set;
+        }
+
+        public static IReadOnlyDictionary<int, County> CountyEntries
+        {
+            get;
+            private set;
+        }
         public static string CreateDatabaseSQLCommand
         {
             get
@@ -35,6 +44,42 @@ namespace NAUCountryA
             {
                 return GetInitialPathLocation(System.IO.Path.GetFullPath("."));
             }
+        }
+
+        public static IReadOnlyDictionary<int, Offer> OfferEntries
+        {
+            get;
+            private set;
+        }
+
+        public static IReadOnlyDictionary<int, Practice> PracticeEntries
+        {
+            get;
+            private set;
+        }
+
+        public static IReadOnlyDictionary<Offer,Price> PriceEntries
+        {
+            get;
+            private set;
+        }
+
+        public static IReadOnlyDictionary<string,RecordType> RecordTypeEntries
+        {
+            get;
+            private set;
+        }
+
+        public static IReadOnlyDictionary<int,State> StateEntries
+        {
+            get;
+            private set;
+        }
+
+        public static IReadOnlyDictionary<int, NAUType> TypeEntries
+        {
+            get;
+            private set;
         }
 
         public static NAUUser User
@@ -66,6 +111,7 @@ namespace NAUCountryA
             Console.WriteLine("Enter your password: ");
             string password = Console.ReadLine();
             User = new NAUUser(serverName, portNumber, userID, password);
+            LoadTables();
         }
 
         public static bool DateTimeEquals(DateTime a, DateTime b)
@@ -151,9 +197,23 @@ namespace NAUCountryA
             return table;
         }
 
+        public IEnumerable<County> GetStateCounties(State state)
+        {
+            ICollection<County> counties = new List<County>();
+            foreach (County county in CountyEntries.Values)
+            {
+                if (county.State == state)
+                {
+                    counties.Add(county);
+                }
+            }
+            return counties;
+        }
+
         public static void InitializeUserTo(NAUUser user)
         {
             User = user;
+            LoadTables();
         }
 
         public static ICollection<string> ToCollection(string csvFileName)
@@ -218,6 +278,14 @@ namespace NAUCountryA
             return GetInitialPathLocation(temp.FullName);
         }
 
+        public static string GetPath(string filePath)
+        {
+            var exePath = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+            Regex appPathMatcher = new Regex(@"(?<!fil)[A-Za-z]:\\+[\S\s]*?(?=\\+bin)");
+            var appRoot = appPathMatcher.Match(exePath).Value;
+            return System.IO.Path.Combine(appRoot, filePath);
+        }
+
         private static bool IsDate(string value)
         {
             try
@@ -257,40 +325,41 @@ namespace NAUCountryA
             }
         }
 
-        public static void GeneratePDF(State state)
+        private static void LoadTables()
+        {
+            RecordTypeEntries = new RecordTypeTable();
+            CommodityEntries = new CommodityTable();
+            StateEntries = new StateTable();
+            CountyEntries = new CountyTable();
+            TypeEntries = new NauTypeTable();
+            PracticeEntries = new PracticeTable();
+            OfferEntries = new OfferTable();
+            PriceEntries = new PriceTable();
+        }
+
+        public static void GeneratePDF(State state, Practice practice, NAUType type)
         {
             Document doc = new Document();
-            OfferTable offerTable = new OfferTable();
-            DataTable stateOffers = offerTable.getOffersByState(state.StateCode);
-
-            for (int i = 0; i < stateOffers.Rows.Count; i++)
+            Page page = new Page(PageSize.Letter, PageOrientation.Portrait, 54.0f);
+            doc.Pages.Add(page);
+            ICollection<Price> prices = new List<Price>();
+            foreach (Price price in PriceEntries.Values)
             {
-                Offer offer = new Offer(stateOffers.Rows[i]);
-
-                Page page = new Page(PageSize.Letter, PageOrientation.Portrait, 54.0f);
-                doc.Pages.Add(page);
-
-                string labelText = offer.State.StateName + " " + offer.Practice.Commodity.CommodityName + " " + offer.Practice.PracticeName + " " + offer.Type.TypeName + " " + offer.Year.ToString();
-
-                Label label = new Label(labelText, 0, 0, 504, 100, Font.Helvetica, 18, TextAlign.Center);
-                page.Elements.Add(label);
+                if (price.Offer.State == state && price.Offer.Practice == practice && price.Offer.Type == type && price.Offer.Year == 2023)
+                {
+                    prices.Add(price);
+                }
             }
-
-
-            doc.Draw(Util.GetPath("PDFOutput/CreatePDF.pdf")); ;
-
-        }
-        class Util
-        {
-            // This is a helper function to get the full path to a file from the root of the project.
-            internal static string GetPath(string filePath)
+            string labelText = $"{state.StateName} {practice.Commodity.CommodityName} {practice.PracticeName} {type.TypeName} {2023}";
+            Label label = new Label(labelText, 0, 0, 504, 100, Font.Helvetica, 18, TextAlign.Center);
+            page.Elements.Add(label);
+            TextArea textArea = new TextArea("", 100, 100, 400, 30, ceTe.DynamicPDF.Font.HelveticaBoldOblique, 18);
+            foreach (Price price in prices)
             {
-                var exePath = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
-                Regex appPathMatcher = new Regex(@"(?<!fil)[A-Za-z]:\\+[\S\s]*?(?=\\+bin)");
-                var appRoot = appPathMatcher.Match(exePath).Value;
-                return System.IO.Path.Combine(appRoot, filePath);
+                textArea.Text = textArea.Text + price.Offer.County + ": " + price.ExpectedIndexValue + "\n";
             }
-
+            page.Elements.Add(textArea);
+            doc.Draw(GetPath("PDFOutput/CreatePDF.pdf")); ;
         }
     }
 }

@@ -27,11 +27,11 @@ namespace NAUCountryA.Tables
         {
             get
             {
-                string sqlCommand = $"SELECT * FROM public.\"Type\" WHERE \"TYPE_CODE\" = '{typeCode}';";
+                string sqlCommand = $"SELECT * FROM public.\"Type\" WHERE \"TYPE_CODE\" = {typeCode};";
                 DataTable table = Service.GetDataTable(sqlCommand);
                 if (table.Rows.Count == 0)
                 {
-                    throw new KeyNotFoundException($"The TYPE_CODE: '{typeCode}' doesn't exist.");
+                    throw new KeyNotFoundException($"The TYPE_CODE: {typeCode} doesn't exist.");
                 }
                 return new NAUType(table.Rows[0]);
             }
@@ -65,7 +65,7 @@ namespace NAUCountryA.Tables
 
         public bool ContainsKey(int typeCode)
         {
-            string sqlCommand = $"SELECT * FROM public.\"Type\" WHERE \"TYPE_CODE\" = '{typeCode}';";
+            string sqlCommand = $"SELECT * FROM public.\"Type\" WHERE \"TYPE_CODE\" = {typeCode};";
             DataTable table = Service.GetDataTable(sqlCommand);
             return table.Rows.Count >= 1;
         }
@@ -129,10 +129,10 @@ namespace NAUCountryA.Tables
                     string recordTypeCode = (string)Service.ExpressValue(values[0]);
                     if(!ContainsKey(typeCode))
                     {
-                        string sqlCommand = $"INSERT INTO public.\"State\" ('{headers[4]}','{headers[5]}'," + 
-                            $"'{headers[6]}','{headers[3]}','{headers[8]}','{headers[0]}') VALUES ('{typeCode}'," +
-                            $"''{typeName}'',''{typeAbbreviation}'','{commodityCode}',''{Service.ToString(releasedDate)}''" +
-                            $",''{recordTypeCode}'');";
+                        string sqlCommand = $"INSERT INTO public.\"State\" ({headers[4]},{headers[5]}," + 
+                            $"{headers[6]},{headers[3]},{headers[8]},{headers[0]}) VALUES ({typeCode}," +
+                            $"'{typeName}','{typeAbbreviation}',{commodityCode},'{Service.ToString(releasedDate)}'" +
+                            $",'{recordTypeCode}');";
                         Service.GetDataTable(sqlCommand);
                     }
                 }
@@ -154,7 +154,7 @@ namespace NAUCountryA.Tables
             foreach (string line in CsvContents)
             {
                 string[] values = line.Split(',');
-                contents.Add($"'{values[4]}','{values[5]}','{values[6]}','{values[3]}','{values[8]}','{values[0]}'");
+                contents.Add($"{values[4]},{values[5]},{values[6]},{values[3]},{values[8]},{values[0]}");
             }
             int position = 0;
             while (position < Count)
@@ -162,8 +162,8 @@ namespace NAUCountryA.Tables
                 NAUType type = new NAUType(Table.Rows[position]);
                 if(!contents.Contains(type.ToString()))
                 {
-                    string sqlCommand = "DELETE FROM public.\"Type\" WHERE \"TYPE_NAME\" = '" +
-                        type.TypeName + "';";
+                    string sqlCommand = "DELETE FROM public.\"Type\" WHERE \"TYPE_CODE\" = " +
+                        type.TypeCode + ";";
                     Service.GetDataTable(sqlCommand);
                 }
                 else

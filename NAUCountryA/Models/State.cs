@@ -10,8 +10,7 @@ namespace NAUCountryA.Models
             StateCode = stateCode;
             StateName = stateName;
             StateAbbreviation = stateAbbreviation;
-            IReadOnlyDictionary<string, RecordType> recordTypeEntries = new RecordTypeTable();
-            RecordType = recordTypeEntries[recordTypeCode];
+            RecordType = Service.RecordTypeEntries[recordTypeCode];
 
         }
 
@@ -82,7 +81,7 @@ namespace NAUCountryA.Models
 
         public override string ToString()
         {
-            return $"'{FormatStateCode()}',\"'{StateName}'\",\"'{StateAbbreviation}'\",\"'{RecordType.RecordTypeCode}'\"";
+            return $"{FormatStateCode()},\"{StateName}\",\"{StateAbbreviation}\",\"{RecordType.RecordTypeCode}\"";
         }
 
         public static bool operator ==(State a, State b)

@@ -30,11 +30,11 @@ namespace NAUCountryA.Tables
         {
             get
             {
-                string sqlCommand = $"SELECT * FROM public.\"State\" WHERE \"STATE_CODE\" = '{stateCode};";
+                string sqlCommand = $"SELECT * FROM public.\"State\" WHERE \"STATE_CODE\" = {stateCode};";
                 DataTable table = Service.GetDataTable(sqlCommand);
                 if (table.Rows.Count == 0)
                 {
-                    throw new KeyNotFoundException($"The STATE_CODE: '{stateCode}' doesn't exist.");
+                    throw new KeyNotFoundException($"The STATE_CODE: {stateCode} doesn't exist.");
                 }
                 return new State(table.Rows[0]);
             }
@@ -68,7 +68,7 @@ namespace NAUCountryA.Tables
 
         public bool ContainsKey(int stateCode)
         {
-            string sqlCommand = $"SELECT * FROM public.\"State\" WHERE \"STATE_CODE\" = '{stateCode}';";
+            string sqlCommand = $"SELECT * FROM public.\"State\" WHERE \"STATE_CODE\" = {stateCode};";
             DataTable table = Service.GetDataTable(sqlCommand);
             return table.Rows.Count >= 1;
         }
@@ -130,9 +130,9 @@ namespace NAUCountryA.Tables
                     string recordTypeCode = (string)Service.ExpressValue(values[0]);
                     if (!ContainsKey(stateCode))
                     {
-                        string sqlCommand = $"INSERT INTO public.\"State\" ('{headers[3]}',{headers[4]}'," + 
-                            $"'{headers[5]}','{headers[0]}') VALUES ('{stateCode}',''{stateName}''," +
-                            $"''{stateAbbreviation}'',''{recordTypeCode}'');";
+                        string sqlCommand = $"INSERT INTO public.\"State\" ({headers[3]},{headers[4]}," + 
+                            $"{headers[5]},{headers[0]}) VALUES ({stateCode},'{stateName}'," +
+                            $"'{stateAbbreviation}','{recordTypeCode}');";
                         Service.GetDataTable(sqlCommand);
                     }
                 }
@@ -154,7 +154,7 @@ namespace NAUCountryA.Tables
             foreach (string line in CsvContents)
             {
                 string[] values = line.Split(',');
-                contents.Add($"'{values[3]}','{values[4]}','{values[5]}','{values[0]}'");
+                contents.Add($"{values[3]},{values[4]},{values[5]},{values[0]}");
             }
             int position = 0;
             while (position < Count)
@@ -162,7 +162,7 @@ namespace NAUCountryA.Tables
                 State state = new State(Table.Rows[position]);
                 if (!contents.Contains(state.ToString()))
                 {
-                    string sqlCommand = $"DELETE FROM public.\"State\" WHERE \"STATE_CODE\" = '{state.StateCode}';";
+                    string sqlCommand = $"DELETE FROM public.\"State\" WHERE \"STATE_CODE\" = {state.StateCode};";
                     Service.GetDataTable(sqlCommand);
                 }
                 else

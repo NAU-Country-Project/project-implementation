@@ -6,7 +6,7 @@ namespace NAUCountryATest
 {
     public class ServiceTest
     {
-
+        internal readonly static NAUUser TEST_USER = new NAUUser("localhost", 2023, "postgres", "naucountrydev");
         [Test]
         public void TestCreateDatabaseSQLCommand()
         {

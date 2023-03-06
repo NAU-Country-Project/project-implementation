@@ -8,11 +8,9 @@ namespace NAUCountryA.Models
         public County(int countyCode, int stateCode, string countyName, string recordTypeCode)
         {
             CountyCode = countyCode;
-            IReadOnlyDictionary<int,State> stateEntries = new StateTable();
-            State = stateEntries[stateCode];
+            State = Service.StateEntries[stateCode];
             CountyName = countyName;
-            IReadOnlyDictionary<string,RecordType> recordTypeEntries = new RecordTypeTable();
-            RecordType = recordTypeEntries[recordTypeCode];
+            RecordType = Service.RecordTypeEntries[recordTypeCode];
         }
 
         public County(DataRow row)
@@ -71,13 +69,13 @@ namespace NAUCountryA.Models
         {
             if (CountyCode < 10)
             {
-                return $"\"00'{CountyCode}'\"";
+                return $"\"00{CountyCode}\"";
             }
             else if (CountyCode < 100)
             {
-                return $"\"0'{CountyCode}'\"";
+                return $"\"0{CountyCode}\"";
             }
-            return $"\"'{CountyCode}'\"";
+            return $"\"{CountyCode}\"";
         }
 
         public override int GetHashCode()
@@ -87,7 +85,7 @@ namespace NAUCountryA.Models
 
         public override string ToString()
         {
-            return $"'{FormatCountyCode()}','{State.FormatStateCode()}',\"'{CountyName}'\",\"'{RecordType.RecordTypeCode}'\"";
+            return $"{FormatCountyCode()},{State.FormatStateCode()},\"{CountyName}\",\"{RecordType.RecordTypeCode}\"";
         }
 
         public static bool operator== (County a, County b)

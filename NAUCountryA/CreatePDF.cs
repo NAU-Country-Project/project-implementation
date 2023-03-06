@@ -13,6 +13,7 @@ namespace NAUCountryA
 {
     public class CreatePDF
     {
+        /*
         public static void Run()
         {
             Document document = new Document();
@@ -45,6 +46,6 @@ namespace NAUCountryA
                 return System.IO.Path.Combine(appRoot, filePath);
             }
 
-        }
+        } */
     }
 }

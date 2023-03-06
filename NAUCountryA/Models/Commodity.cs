@@ -13,12 +13,11 @@ namespace NAUCountryA.Models
             AnnualPlantingCode = annualPlantingCode;
             CommodityYear = commodityYear;
             ReleasedDate = releasedDate;
-            IReadOnlyDictionary<string,RecordType> recordTypeEntries = new RecordTypeTable();
-            RecordType = recordTypeEntries[recordTypeCode];
+            RecordType = Service.RecordTypeEntries[recordTypeCode];
         }
 
         public Commodity(DataRow row)
-        :this((int)row["COMMODITY_CODE"], (string)row["COMMODITY_NAME"], (string)row["COMMODITY_ABBREVIATION"],(char)row["ANNUAL_PLANTING_CODE"], (int)row["COMMODITY_YEAR"], (DateTime)row["RELEASED_DATE"], (string)row["RECORD_TYPE_CODE"])
+        :this((int)row["COMMODITY_CODE"], (string)row["COMMODITY_NAME"], (string)row["COMMODITY_ABBREVIATION"],row["ANNUAL_PLANTING_CODE"].ToString()[0], (int)row["COMMODITY_YEAR"], Service.ToDateTime(row["RELEASED_DATE"].ToString()), (string)row["RECORD_TYPE_CODE"])
         {
         }
 
@@ -93,17 +92,17 @@ namespace NAUCountryA.Models
         {
             if (CommodityCode < 10)
             {
-                return $"\"000'{CommodityCode}'\"";
+                return $"\"000{CommodityCode}\"";
             }
             else if (CommodityCode < 100)
             {
-                return $"\"00'{CommodityCode}'\"";
+                return $"\"00{CommodityCode}\"";
             }
             else if (CommodityCode < 1000)
             {
-                return $"\"0'{CommodityCode}'\"";
+                return $"\"0{CommodityCode}\"";
             }
-            return $"\"'{CommodityCode}'\"";
+            return $"\"{CommodityCode}\"";
         }
 
         public override int GetHashCode()
@@ -113,9 +112,9 @@ namespace NAUCountryA.Models
 
         public override string ToString()
         {
-            return $"'{FormatCommodityCode()}',\"'{CommodityName}'\",\"'{CommodityAbbreviation}'\",\"" +
-                $"'{AnnualPlantingCode}'\",\"'{CommodityYear}'\",\"'{Service.ToString(ReleasedDate)}'\"" +
-                $"'{RecordType.RecordTypeCode}'\"";
+            return $"{FormatCommodityCode()},\"{CommodityName}\",\"{CommodityAbbreviation}\",\"" +
+                $"{AnnualPlantingCode}\",\"{CommodityYear}\",\"{Service.ToString(ReleasedDate)}\"," +
+                $"\"{RecordType.RecordTypeCode}\"";
         }
 
         public static bool operator== (Commodity a, Commodity b)

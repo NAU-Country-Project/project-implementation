@@ -1,8 +1,5 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using NUnit.Framework;
+using NAUCountryA;
+using NAUCountryA.Models;
 
 namespace NAUCountryATest.Tables
 {
@@ -11,12 +8,13 @@ namespace NAUCountryATest.Tables
         [SetUp]
         public void Setup()
         {
+            Service.InitializeUserTo(ServiceTest.TEST_USER);
         }
 
         [Test]
-        public void Test1()
+        public void TestCount()
         {
-            Assert.Pass();
+            Assert.That(Service.CommodityEntries.Count,Is.EqualTo(140));
         }
     }
 }
